@@ -16,6 +16,7 @@ echo -e "${RED} (ERR) dockergroup not found ${RESET}"
 echo -e "${GREEN} (INFO) add docker to groups ${RESET}"
        if sudo groupadd docker; then
        echo -e "${GREEN} (INFO) success add docker to group ${RESET}"
+       sudo usermod -aG docker $USER
        else
        echo -e "${RED} (ERR) failed add docker to group ${RESET}"
        fi
