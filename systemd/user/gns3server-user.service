@@ -1,0 +1,17 @@
+[Unit]
+Description=GNS3 Server (run as carlos)
+After=network.target
+
+[Service]
+Type=simple
+User=carlos
+WorkingDirectory=/home/carlos
+ExecStart=/home/carlos/debian13/systemd/gns3/gns3-run.sh
+Restart=on-failure
+RestartSec=5
+
+# Pastikan environment path venv ikut dimuat
+Environment="PATH=/home/carlos/.local/share/pipx/venvs/gns3-server/bin:/home/carlos/.local/bin:/usr/local/bin:/usr/bin:/bin"
+
+[Install]
+WantedBy=multi-user.target
