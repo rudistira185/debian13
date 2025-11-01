@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+      ubuntu1:
+         image: ubuntu:latest
+         command: sleep infinity
+         volumes:
+           - /home/carlos/docker-mount:/root
+         container_name: ubuntu1
