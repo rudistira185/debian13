@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Konfigurasi dasar
+PORT=8080
+ROOT_DIR="/home/carlos/debian13/local-file_server"
+CONF_FILE="/etc/nginx/sites-available/localfileserver"
+
+sudo rm -rf $CONF_FILE
+# Generate konfigurasi nginx
+sudo tee /etc/nginx/sites-available/localfileserver <<'EOF'
+server {
+    listen 8080;
+    server_name localhost;
+
+    root /home/carlos/debian13/local-file_server;
+    index index.html;
+
+    location / {
+        autoindex on;
+        try_files $uri $uri/ =404;
+    }
+}
+EOF
+
+# Aktifkan konfigurasi
+sudo ln -sf "$CONF_FILE" /etc/nginx/sites-enabled/localfileserver
+
+# Restart nginx
+echo "Restarting nginx..."
+sudo systemctl restart nginx
+
+# Tampilkan hasil
+echo
+echo "✅ Nginx local file server siap!"
+echo "➡️  URL:  http://$(hostname -I | awk '{print $1}'):${PORT}/testfileUrandom.bin"
+echo "➡️  Folder root: ${ROOT_DIR}"
