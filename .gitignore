@@ -1,2 +1,3 @@
 .token
 local-file_server/python/testfileUrandom.bin
+docker/compose/monitoring/data/grafana/src/*
