@@ -1,0 +1,1 @@
+gunakan kernel versi 6.6 ke bawah untuk menggunakan vmware
