@@ -1,14 +1,19 @@
 {
-  description = "Fritzing 1.0.6";
+  description = "Fritzing 1.0.6 shell";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  };
 
   outputs = { self, nixpkgs }:
   let
-    pkgs = import nixpkgs { system = "x86_64-linux"; };
+    system = "x86_64-linux";
+    pkgs = import nixpkgs { inherit system; };
   in {
-    devShell.x86_64-linux = pkgs.mkShell {
-      packages = [ pkgs.fritzing ];
+    devShells.${system} = pkgs.mkShell {
+      nativeBuildInputs = [
+        pkgs.fritzing
+      ];
     };
   };
 }
