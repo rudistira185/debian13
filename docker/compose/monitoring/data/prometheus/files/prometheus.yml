@@ -1,5 +1,6 @@
 global:
-  scrape_interval: 15s
+  scrape_interval: 5s
+  scrape_timeout: 4s
 
 scrape_configs:
   - job_name: "prometheus"
@@ -9,3 +10,64 @@ scrape_configs:
   - job_name: "node_exporter"
     static_configs:
       - targets: ["node_exporter:9100"]
+
+  - job_name: "tasmota"
+    metrics_path: /tasmota
+    params:
+      target: ["192.168.227.204"]   # ini yang penting
+    static_configs:
+      - targets: ['tasmota_exporter:9093']
+
+  - job_name: 'android_bash_exporter'
+    # Atur scrape_interval lebih pendek dari default (15s) 
+    # karena server netcat sangat ringan dan cepat menutup koneksi.
+    scrape_interval: 10s  
+    static_configs:
+      # Ganti [ALAMAT_IP_ANDROID] dengan alamat IP lokal perangkat Anda 
+      - targets: ["192.168.227.49:9100"]
+
+  - job_name: 'tasmota_ping'
+    metrics_path: /probe
+    params:
+      module: [icmp]
+    static_configs:
+      - targets:
+        - 192.168.227.204   # IP Tasmota kamu
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - target_label: __address__
+        replacement: blackbox_exporter:9115
+      - source_labels: [__param_target]
+        target_label: instance
+
+  - job_name: 'renot9 ping'
+    metrics_path: /probe
+    params:
+      module: [icmp]
+    static_configs:
+      - targets:
+        - 192.168.227.49   # device rednot9
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - target_label: __address__
+        replacement: blackbox_exporter:9115
+      - source_labels: [__param_target]
+        target_label: instance
+
+  - job_name: 'ping_dns_google'
+    metrics_path: /probe
+    params:
+      module: [icmp]
+    static_configs:
+      - targets:
+        - 8.8.8.8   # Google DNS
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - target_label: __address__
+        replacement: blackbox_exporter:9115
+      - source_labels: [__param_target]
+        target_label: instance
+
