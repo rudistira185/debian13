@@ -19,6 +19,25 @@ services:
       - "9100:9100"
     restart: unless-stopped
 
+  tasmota_exporter:
+    image: declanfitzpatrick/tasmota-prometheus-exporter:latest
+    container_name: tasmota_exporter
+    environment:
+      - TARGET=http://192.168.227.204
+      - METRIC_NAMESPACE=tasmota
+    ports:
+      - "9093:9093"
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  blackbox_exporter:
+    image: prom/blackbox-exporter:latest
+    container_name: blackbox_exporter
+    ports:
+      - "9115:9115"
+    restart: unless-stopped
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -29,3 +48,6 @@ services:
       - "3000:3000"
     depends_on:
       - prometheus
+      - tasmota_exporter
+      - blackbox_exporter
+    restart: unless-stopped
