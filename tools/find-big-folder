@@ -1,0 +1,1 @@
+sudo du -ah / | sort -hr | head -n 10
