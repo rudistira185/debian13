@@ -1,0 +1,4 @@
+NtpServer1 id.pool.ntp.org
+
+#for check time
+time
