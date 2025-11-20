@@ -2,3 +2,4 @@
 local-file_server/python/testfileUrandom.bin
 docker/compose/monitoring/data/grafana/src/*
 !docker/compose/monitoring/data/grafana/src/.gitkeep
+merlin/exporter/node_exporter
