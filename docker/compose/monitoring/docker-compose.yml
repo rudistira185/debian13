@@ -1,6 +1,22 @@
 version: "3.8"
 
 services:
+  # 1. Broker MQTT (Mosquitto) - BARU
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto-broker
+    ports:
+      - "1883:1883"
+    volumes:
+      # Map file konfigurasi baru yang Anda buat
+      - ./data/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      # Volume untuk data persistensi
+      - ./data/mosquitto/data:/mosquitto/data
+    restart: unless-stopped
+    networks:
+      - mon_net
+
+  # 2. Prometheus
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -11,33 +27,52 @@ services:
     ports:
       - "9090:9090"
     restart: unless-stopped
+    depends_on:
+      - mosquitto
+    networks:
+      - mon_net
 
+  # 3. Node Exporter
   node_exporter:
     image: prom/node-exporter:latest
     container_name: node_exporter
     ports:
       - "9100:9100"
     restart: unless-stopped
+    networks:
+      - mon_net
 
-  tasmota_exporter:
-    image: declanfitzpatrick/tasmota-prometheus-exporter:latest
-    container_name: tasmota_exporter
+  # 4. Tasmota Exporter (Diedit)
+  tasmota-exporter:
+    image: eugenezadyra/tasmota-exporter:latest
+    container_name: tasmota-exporter
     environment:
-      - TARGET=http://192.168.227.204
-      - METRIC_NAMESPACE=tasmota
+      # PENTING: Menggunakan NAMA LAYANAN 'mosquitto' sebagai hostname
+      MQTT_HOSTNAME: mosquitto 
+      MQTT_PORT: 1883
+      # Menggunakan User/Pass kosong karena Mosquitto di atas defaultnya tanpa autentikasi
+      MQTT_USERNAME: "" 
+      MQTT_PASSWORD: "" 
+      PROMETHEUS_EXPORTER_PORT: 9025
     ports:
-      - "9093:9093"
+      - '9025:9025'
     restart: unless-stopped
     depends_on:
-      - prometheus
+      - mosquitto
+    networks:
+      - mon_net
 
+  # 5. Blackbox Exporter
   blackbox_exporter:
     image: prom/blackbox-exporter:latest
     container_name: blackbox_exporter
     ports:
       - "9115:9115"
     restart: unless-stopped
+    networks:
+      - mon_net
 
+  # 6. Grafana
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -48,6 +83,13 @@ services:
       - "3000:3000"
     depends_on:
       - prometheus
-      - tasmota_exporter
+      - tasmota-exporter
       - blackbox_exporter
     restart: unless-stopped
+    networks:
+      - mon_net
+
+# Definisikan Network agar semua layanan dapat berkomunikasi dengan nama layanannya
+networks:
+  mon_net:
+    driver: bridge
